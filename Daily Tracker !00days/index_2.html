@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>100 Days Challenge Tracker</title>
+<meta name="description" content="Daily tracker for the 100 Days Challenge — 19 Sep to 27 Dec 2026.">
+<meta name="theme-color" content="#0f1117">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='52' font-family='system-ui,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3E100%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --surface-2:#f0f2f7; --border:#e2e5ee;
+  --text:#14161d; --muted:#666e82; --faint:#98a0b3;
+  --accent:#4f46e5; --accent-soft:#eceafe;
+  --done:#12a150; --done-soft:#e3f6eb;
+  --miss:#e0405a; --miss-soft:#fde8eb;
+  --shadow:0 1px 2px rgba(16,20,35,.05), 0 8px 24px -12px rgba(16,20,35,.18);
+  --radius:14px;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1117; --surface:#171a22; --surface-2:#1e222c; --border:#2a2f3c;
+    --text:#e8eaf0; --muted:#98a0b3; --faint:#6b7386;
+    --accent:#8b83ff; --accent-soft:#252244;
+    --done:#2ecc71; --done-soft:#14301f;
+    --miss:#ff6b81; --miss-soft:#331a20;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1117; --surface:#171a22; --surface-2:#1e222c; --border:#2a2f3c;
+  --text:#e8eaf0; --muted:#98a0b3; --faint:#6b7386;
+  --accent:#8b83ff; --accent-soft:#252244;
+  --done:#2ecc71; --done-soft:#14301f;
+  --miss:#ff6b81; --miss-soft:#331a20;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px -14px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 72px}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+h1,h2,h3{margin:0;line-height:1.25;letter-spacing:-.01em}
+
+/* ---------- header ---------- */
+header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px}
+.brand h1{font-size:19px;font-weight:700}
+.brand p{margin:3px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.02em}
+.hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;padding:3px;gap:2px}
+.seg button{padding:7px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;transition:.15s}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg button:hover{color:var(--text)}
+
+.icon-btn{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:.15s}
+.icon-btn:hover{color:var(--text);border-color:var(--faint)}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.card-h h2{font-size:15px;font-weight:650}
+.card-h .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:auto repeat(3,1fr);gap:18px;align-items:center;padding:18px;margin-bottom:18px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.ring .val b{font-size:23px;font-weight:700;letter-spacing:-.02em;display:block}
+.ring .val span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.stat{min-width:0}
+.stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.stat .v{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.stat .v small{font-size:13px;font-weight:500;color:var(--faint);letter-spacing:0}
+.stat .n{font-size:12px;color:var(--muted);margin-top:1px}
+@media (max-width:760px){
+  .stats{grid-template-columns:repeat(2,1fr);gap:14px}
+  .ring{grid-column:1/-1;justify-self:center}
+}
+
+/* ---------- today ---------- */
+.daynav{display:flex;align-items:center;gap:10px}
+.daynav button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);display:grid;place-items:center;color:var(--muted);background:var(--surface)}
+.daynav button:hover:not(:disabled){color:var(--text)}
+.daynav button:disabled{opacity:.35;cursor:not-allowed}
+.daynav .lbl{font-size:13px;font-weight:600;min-width:150px;text-align:center}
+.daynav .lbl small{display:block;font-weight:500;color:var(--muted);font-size:11.5px}
+
+.tasklist{padding:6px 0}
+.trow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--border)}
+.trow:last-child{border-bottom:none}
+.trow .name{flex:1;min-width:0;font-size:14.5px}
+.trow .pct{font-size:11.5px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.trow[data-s="1"] .name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--faint)}
+.mark{display:flex;gap:6px;flex:none}
+.mark button{width:38px;height:34px;border-radius:9px;border:1.5px solid var(--border);display:grid;place-items:center;font-size:15px;font-weight:700;color:var(--faint);background:var(--surface-2);transition:.12s}
+.mark button:hover{border-color:var(--faint)}
+.trow[data-s="1"] .mk-d{background:var(--done-soft);border-color:var(--done);color:var(--done)}
+.trow[data-s="2"] .mk-m{background:var(--miss-soft);border-color:var(--miss);color:var(--miss)}
+.dayfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--border);flex-wrap:wrap}
+.linkbtn{font-size:13px;font-weight:600;color:var(--accent);padding:6px 10px;border-radius:8px}
+.linkbtn:hover{background:var(--accent-soft)}
+
+/* ---------- grid ---------- */
+.gridscroll{overflow:auto;max-height:76vh;-webkit-overflow-scrolling:touch}
+table{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content}
+th,td{padding:0;margin:0}
+thead th{position:sticky;top:0;z-index:3;background:var(--surface);border-bottom:1px solid var(--border)}
+thead th.corner{left:0;z-index:5;border-right:1px solid var(--border)}
+th.dayh{min-width:30px;width:30px;padding:8px 0 7px;font-weight:600;color:var(--muted);font-size:10px;line-height:1.35;text-align:center;font-variant-numeric:tabular-nums}
+th.dayh span{display:block;font-size:9px;font-weight:500;color:var(--faint)}
+th.dayh.today{background:var(--accent-soft);color:var(--accent)}
+th.dayh.mstart{border-left:1px solid var(--border)}
+tbody th{position:sticky;left:0;z-index:2;background:var(--surface);text-align:left;font-weight:500;font-size:12.5px;padding:0 14px 0 16px;min-width:224px;max-width:224px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+thead th.corner{padding:8px 14px 7px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);min-width:224px;max-width:224px}
+tbody td{border-bottom:1px solid var(--border);text-align:center;height:30px}
+tbody td.mstart{border-left:1px solid var(--border)}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:none}
+.cell{width:26px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px;font-weight:700;color:transparent;background:var(--surface-2);transition:.1s}
+.cell:hover{outline:1.5px solid var(--faint)}
+td[data-s="1"] .cell{background:var(--done-soft);color:var(--done)}
+td[data-s="2"] .cell{background:var(--miss-soft);color:var(--miss)}
+td.today .cell{outline:1.5px solid var(--accent)}
+tfoot th,tfoot td{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);font-size:9.5px;color:var(--faint);font-variant-numeric:tabular-nums;z-index:2}
+tfoot th{left:0;z-index:4;padding:6px 14px 6px 16px;text-align:left;text-transform:uppercase;letter-spacing:.06em;border-right:1px solid var(--border)}
+tfoot td{padding:6px 0}
+
+.legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
+.legend i{width:13px;height:13px;border-radius:4px;display:inline-block;vertical-align:-2px;margin-right:5px}
+
+/* ---------- data panel ---------- */
+.datarow{display:flex;gap:10px;flex-wrap:wrap;padding:16px 18px}
+.btn{padding:9px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);font-size:13.5px;font-weight:600;transition:.15s}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--miss)}
+.btn.danger:hover{background:var(--miss-soft);border-color:var(--miss)}
+.hint{padding:0 18px 16px;font-size:12.5px;color:var(--muted);max-width:70ch}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:50;box-shadow:0 8px 30px -8px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.tabs{margin-bottom:18px;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:1 0 auto}
+.sm{display:none}
+@media (max-width:470px){
+  .lg{display:none} .sm{display:inline}
+  .tabs button{padding:7px 10px;font-size:13px}
+  .brand h1{font-size:17px}
+}
+.view{display:none}
+.view.on{display:block}
+footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <h1>100 Days Challenge Tracker</h1>
+      <p id="range">19 Sep – 27 Dec 2026</p>
+    </div>
+    <div class="hdr-actions">
+      <div class="seg" id="profileSeg" role="group" aria-label="Profile"></div>
+      <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
+    </div>
+  </header>
+
+  <section class="card stats">
+    <div class="ring">
+      <svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
+        <circle cx="52" cy="52" r="45" fill="none" stroke="var(--surface-2)" stroke-width="10"/>
+        <circle id="ringArc" cx="52" cy="52" r="45" fill="none" stroke="var(--accent)" stroke-width="10"
+                stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7"
+                style="transition:stroke-dashoffset .5s ease"/>
+      </svg>
+      <div class="val"><b id="pctOverall">0%</b><span>Complete</span></div>
+    </div>
+    <div class="stat"><div class="k">Day</div><div class="v" id="sDay">—</div><div class="n" id="sDayNote">of 100</div></div>
+    <div class="stat"><div class="k">Perfect-day streak</div><div class="v" id="sStreak">0</div><div class="n" id="sStreakNote">all 10 tasks done</div></div>
+    <div class="stat"><div class="k">Ticks logged</div><div class="v" id="sTicks">0<small> / 1000</small></div><div class="n" id="sMiss">0 missed</div></div>
+  </section>
+
+  <div class="seg tabs" role="group" aria-label="View">
+    <button data-view="today" aria-pressed="true"><span class="lg">Daily check-in</span><span class="sm">Today</span></button>
+    <button data-view="grid" aria-pressed="false"><span class="lg">Full 100-day grid</span><span class="sm">Grid</span></button>
+    <button data-view="data" aria-pressed="false"><span class="lg">Backup &amp; sync</span><span class="sm">Backup</span></button>
+  </div>
+
+  <!-- DAILY -->
+  <section class="view on" id="view-today">
+    <div class="card">
+      <div class="card-h">
+        <div>
+          <h2 id="dayTitle">Day 1</h2>
+          <div class="sub" id="dayDate">Saturday, 19 September 2026</div>
+        </div>
+        <div class="daynav">
+          <button id="prevDay" aria-label="Previous day">‹</button>
+          <div class="lbl"><span id="dayCount">0 / 10 done</span><small id="dayRel">today</small></div>
+          <button id="nextDay" aria-label="Next day">›</button>
+        </div>
+      </div>
+      <div class="tasklist" id="taskList"></div>
+      <div class="dayfoot">
+        <button class="linkbtn" id="jumpToday">Jump to today</button>
+        <div>
+          <button class="linkbtn" id="allDone">Mark all done</button>
+          <button class="linkbtn" id="clearDay">Clear day</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRID -->
+  <section class="view" id="view-grid">
+    <div class="card">
+      <div class="card-h">
+        <div><h2>Full tracker</h2><div class="sub">Click a box to cycle blank → tick → cross</div></div>
+        <div class="seg" id="blockSeg" role="group" aria-label="Day range"></div>
+      </div>
+      <div class="gridscroll"><table id="grid"></table></div>
+      <div class="legend">
+        <span><i style="background:var(--done-soft);border:1.5px solid var(--done)"></i>Done</span>
+        <span><i style="background:var(--miss-soft);border:1.5px solid var(--miss)"></i>Missed</span>
+        <span><i style="background:var(--surface-2);border:1.5px solid var(--border)"></i>Not logged</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA -->
+  <section class="view" id="view-data">
+    <div class="card">
+      <div class="card-h"><div><h2>Backup &amp; sync</h2><div class="sub">Progress lives in this browser only</div></div></div>
+      <div class="datarow">
+        <button class="btn primary" id="exportBtn">⬇ Export JSON</button>
+        <button class="btn" id="importBtn">⬆ Import JSON</button>
+        <button class="btn" id="printBtn">🖨 Print grid</button>
+        <button class="btn danger" id="resetBtn">Reset this profile</button>
+        <input type="file" id="fileIn" accept="application/json,.json" hidden>
+      </div>
+      <p class="hint">
+        Ticks are saved automatically to this browser's local storage — they survive refreshes and
+        redeploys, but they don't travel between devices. To move progress from phone to laptop:
+        <b>Export JSON</b> here, send yourself the file, then <b>Import JSON</b> on the other device.
+        Import merges both profiles and overwrites whatever is currently stored.
+      </p>
+    </div>
+  </section>
+
+  <footer>Mark each box for the day. Stay consistent — discipline compounds.</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ config ============ */
+var START = new Date(2026, 8, 19);          // 19 Sep 2026 = Day 1
+var DAYS  = 100;                            // ends 27 Dec 2026
+var STORE = "hundredDays.v1";
+
+var TASKS = [
+  "5 AM Wake-up",
+  "LeetCode Streak",
+  "DSA + Striver Sheet",
+  "Project Building",
+  "Java (Jenny's Lectures)",
+  "Gym",
+  "Diet – No Sugar",
+  "Mails / Job & Internship Apps",
+  "College Work",
+  "Resume / Skill Improvement"
+];
+
+var PROFILES = [
+  { id: "dhanush", name: "Dhanush Kumar", short: "Dhanush" },
+  { id: "ramya",   name: "Ramya Sree",    short: "Ramya"   }
+];
+
+var BLOCKS = [
+  { id: "1",   label: "1–25",   from: 1,  to: 25  },
+  { id: "2",   label: "26–50",  from: 26, to: 50  },
+  { id: "3",   label: "51–75",  from: 51, to: 75  },
+  { id: "4",   label: "76–100", from: 76, to: 100 },
+  { id: "all", label: "All",    from: 1,  to: 100 }
+];
+
+var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+var DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+var MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+/* ============ state ============ */
+var data    = load();                       // { profileId: { "day:taskIndex": 1|2 } }
+var profile = safeGet("hundredDays.profile") || PROFILES[0].id;
+var block   = safeGet("hundredDays.block")   || "1";
+var view    = "today";
+var curDay  = clamp(todayIndex() || 1, 1, DAYS);
+var resetArmed = false;
+
+function safeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function safeSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+function load(){
+  var d = {};
+  PROFILES.forEach(function(p){ d[p.id] = {}; });
+  try {
+    var raw = localStorage.getItem(STORE);
+    if (raw){
+      var p = JSON.parse(raw);
+      PROFILES.forEach(function(pr){
+        if (p && p[pr.id] && typeof p[pr.id] === "object") d[pr.id] = p[pr.id];
+      });
+    }
+  } catch(e){}
+  return d;
+}
+function save(){ safeSet(STORE, JSON.stringify(data)); }
+
+/* ============ dates ============ */
+function dateOf(day){ var d = new Date(START.getTime()); d.setDate(d.getDate() + (day - 1)); return d; }
+function midnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function todayIndex(){
+  var diff = Math.round((midnight(new Date()) - START) / 86400000) + 1;
+  return (diff >= 1 && diff <= DAYS) ? diff : 0;   // 0 = outside the challenge window
+}
+function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+function pad(n){ return n < 10 ? "0" + n : "" + n; }
+
+/* ============ cell access ============ */
+function key(day, t){ return day + ":" + t; }
+function getS(day, t){ return data[profile][key(day,t)] || 0; }
+function setS(day, t, v){
+  var k = key(day, t);
+  if (v) data[profile][k] = v; else delete data[profile][k];
+  save();
+}
+function cycle(day, t){ setS(day, t, (getS(day,t) + 1) % 3); }
+
+/* ============ stats ============ */
+function stats(){
+  var done = 0, miss = 0;
+  for (var d = 1; d <= DAYS; d++){
+    for (var t = 0; t < TASKS.length; t++){
+      var s = getS(d, t);
+      if (s === 1) done++; else if (s === 2) miss++;
+    }
+  }
+  var total = DAYS * TASKS.length;
+
+  // perfect-day streak counting back from the most recent elapsed day
+  var ti = todayIndex();
+  var end = ti || (midnight(new Date()) > START ? DAYS : 0);
+  var streak = 0;
+  if (end){
+    if (!isPerfect(end)) end--;                       // today still in progress
+    for (var d2 = end; d2 >= 1; d2--){
+      if (isPerfect(d2)) streak++; else break;
+    }
+  }
+  return { done: done, miss: miss, total: total, pct: total ? done / total : 0, streak: streak, today: ti };
+}
+function isPerfect(day){
+  for (var t = 0; t < TASKS.length; t++) if (getS(day,t) !== 1) return false;
+  return true;
+}
+function dayDone(day){
+  var n = 0;
+  for (var t = 0; t < TASKS.length; t++) if (getS(day,t) === 1) n++;
+  return n;
+}
+function taskDone(t){
+  var n = 0;
+  for (var d = 1; d <= DAYS; d++) if (getS(d,t) === 1) n++;
+  return n;
+}
+
+/* ============ dom helpers ============ */
+function $(s){ return document.querySelector(s); }
+function el(tag, cls, txt){
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (txt != null) e.textContent = txt;
+  return e;
+}
+var toastT;
+function toast(msg){
+  var t = $("#toast");
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ t.classList.remove("on"); }, 2200);
+}
+
+/* ============ render: header / stats ============ */
+function renderProfiles(){
+  var seg = $("#profileSeg");
+  seg.innerHTML = "";
+  PROFILES.forEach(function(p){
+    var b = el("button", null, p.short);
+    b.setAttribute("aria-pressed", p.id === profile ? "true" : "false");
+    b.title = p.name;
+    b.onclick = function(){
+      profile = p.id; safeSet("hundredDays.profile", profile);
+      renderProfiles(); renderAll(); toast(p.name + "'s tracker");
+    };
+    seg.appendChild(b);
+  });
+}
+
+function renderStats(){
+  var s = stats();
+  var C = 2 * Math.PI * 45;
+  $("#ringArc").setAttribute("stroke-dashoffset", String(C * (1 - s.pct)));
+  $("#pctOverall").textContent = Math.round(s.pct * 100) + "%";
+
+  $("#sDay").textContent = s.today ? s.today : "—";
+  var startsIn = Math.round((START - midnight(new Date())) / 86400000);
+  $("#sDayNote").textContent = s.today ? "of 100 · " + (DAYS - s.today) + " to go"
+                   : (startsIn > 0 ? "starts in " + startsIn + " day" + (startsIn === 1 ? "" : "s") : "challenge finished");
+
+  $("#sStreak").textContent = s.streak;
+  $("#sStreakNote").textContent = s.streak === 0 ? "all 10 tasks in a day" : "consecutive perfect days";
+
+  $("#sTicks").innerHTML = s.done + "<small> / " + s.total + "</small>";
+  $("#sMiss").textContent = s.miss + " marked missed";
+}
+
+/* ============ render: daily ============ */
+function renderDay(){
+  var d = dateOf(curDay);
+  $("#dayTitle").textContent = "Day " + curDay;
+  $("#dayDate").textContent = DOW[d.getDay()] + ", " + d.getDate() + " " + MONTH_FULL[d.getMonth()] + " " + d.getFullYear();
+
+  var ti = todayIndex();
+  var rel = "";
+  if (ti && curDay === ti) rel = "today";
+  else {
+    var delta = Math.round((midnight(d) - midnight(new Date())) / 86400000);
+    if (delta === 0) rel = "today";
+    else if (delta === 1) rel = "tomorrow";
+    else if (delta === -1) rel = "yesterday";
+    else if (delta > 0) rel = "in " + delta + " days";
+    else rel = Math.abs(delta) + " days ago";
+  }
+  $("#dayRel").textContent = rel;
+  $("#dayCount").textContent = dayDone(curDay) + " / " + TASKS.length + " done";
+  $("#prevDay").disabled = curDay <= 1;
+  $("#nextDay").disabled = curDay >= DAYS;
+
+  var list = $("#taskList");
+  list.innerHTML = "";
+  TASKS.forEach(function(name, t){
+    var s = getS(curDay, t);
+    var row = el("div", "trow");
+    row.setAttribute("data-s", s);
+
+    var mk = el("div", "mark");
+    var bd = el("button", "mk-d", "✓"); bd.title = "Done"; bd.setAttribute("aria-label", "Mark done: " + name);
+    var bm = el("button", "mk-m", "✕"); bm.title = "Missed"; bm.setAttribute("aria-label", "Mark missed: " + name);
+    bd.onclick = function(){ setS(curDay, t, s === 1 ? 0 : 1); renderAll(); };
+    bm.onclick = function(){ setS(curDay, t, s === 2 ? 0 : 2); renderAll(); };
+    mk.appendChild(bd); mk.appendChild(bm);
+
+    row.appendChild(mk);
+    row.appendChild(el("div", "name", name));
+    row.appendChild(el("div", "pct", taskDone(t) + "/" + DAYS));
+    list.appendChild(row);
+  });
+}
+
+/* ============ render: grid ============ */
+function renderBlockSeg(){
+  var seg = $("#blockSeg");
+  seg.innerHTML = "";
+  BLOCKS.forEach(function(b){
+    var btn = el("button", null, b.label);
+    btn.setAttribute("aria-pressed", b.id === block ? "true" : "false");
+    btn.onclick = function(){ block = b.id; safeSet("hundredDays.block", block); renderBlockSeg(); renderGrid(); };
+    seg.appendChild(btn);
+  });
+}
+
+function renderGrid(){
+  var b = BLOCKS.filter(function(x){ return x.id === block; })[0] || BLOCKS[0];
+  var ti = todayIndex();
+  var tbl = $("#grid");
+  tbl.innerHTML = "";
+
+  var thead = el("thead"), hr = el("tr");
+  var corner = el("th", "corner", "Task / Day");
+  hr.appendChild(corner);
+  for (var d = b.from; d <= b.to; d++){
+    var dt = dateOf(d);
+    var th = el("th", "dayh");
+    th.appendChild(document.createTextNode(String(d)));
+    var sp = el("span", null, pad(dt.getDate()) + "/" + pad(dt.getMonth() + 1));
+    th.appendChild(sp);
+    if (d === ti) th.classList.add("today");
+    if (dt.getDate() === 1 && d !== b.from) th.classList.add("mstart");
+    th.title = "Day " + d + " · " + dt.getDate() + " " + MON[dt.getMonth()];
+    hr.appendChild(th);
+  }
+  thead.appendChild(hr); tbl.appendChild(thead);
+
+  var tbody = el("tbody");
+  TASKS.forEach(function(name, t){
+    var tr = el("tr");
+    var th = el("th", null, name); th.title = name;
+    tr.appendChild(th);
+    for (var d = b.from; d <= b.to; d++){
+      var td = el("td");
+      var s = getS(d, t);
+      td.setAttribute("data-s", s);
+      if (d === ti) td.classList.add("today");
+      if (dateOf(d).getDate() === 1 && d !== b.from) td.classList.add("mstart");
+      var btn = el("button", "cell", s === 1 ? "✓" : (s === 2 ? "✕" : "·"));
+      btn.setAttribute("aria-label", name + ", day " + d);
+      btn.title = name + " · Day " + d;
+      (function(dd, tt){ btn.onclick = function(){ cycle(dd, tt); renderAll(); }; })(d, t);
+      td.appendChild(btn);
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+  tbl.appendChild(tbody);
+
+  var tfoot = el("tfoot"), fr = el("tr");
+  fr.appendChild(el("th", null, "Day total"));
+  for (var d2 = b.from; d2 <= b.to; d2++){
+    var n = dayDone(d2);
+    var td2 = el("td", null, n ? String(n) : "");
+    if (n === TASKS.length) td2.style.color = "var(--done)";
+    fr.appendChild(td2);
+  }
+  tfoot.appendChild(fr); tbl.appendChild(tfoot);
+}
+
+/* ============ views ============ */
+function setView(v){
+  view = v;
+  Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){
+    b.setAttribute("aria-pressed", b.dataset.view === v ? "true" : "false");
+  });
+  ["today","grid","data"].forEach(function(id){
+    $("#view-" + id).classList.toggle("on", id === v);
+  });
+  if (v === "grid") renderGrid();
+}
+
+function renderAll(){ renderStats(); renderDay(); if (view === "grid") renderGrid(); }
+
+/* ============ events ============ */
+$("#prevDay").onclick = function(){ curDay = clamp(curDay - 1, 1, DAYS); renderDay(); };
+$("#nextDay").onclick = function(){ curDay = clamp(curDay + 1, 1, DAYS); renderDay(); };
+$("#jumpToday").onclick = function(){
+  var ti = todayIndex();
+  if (!ti){ toast(midnight(new Date()) < START ? "Challenge starts 19 Sep 2026" : "Challenge ended 27 Dec 2026"); return; }
+  curDay = ti; renderDay();
+};
+$("#allDone").onclick = function(){
+  for (var t = 0; t < TASKS.length; t++) setS(curDay, t, 1);
+  renderAll(); toast("Day " + curDay + " — perfect day ✓");
+};
+$("#clearDay").onclick = function(){
+  for (var t = 0; t < TASKS.length; t++) setS(curDay, t, 0);
+  renderAll(); toast("Day " + curDay + " cleared");
+};
+
+document.addEventListener("keydown", function(e){
+  if (view !== "today" || e.target.tagName === "INPUT") return;
+  if (e.key === "ArrowLeft" && curDay > 1){ curDay--; renderDay(); }
+  if (e.key === "ArrowRight" && curDay < DAYS){ curDay++; renderDay(); }
+});
+
+Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){
+  b.onclick = function(){ setView(b.dataset.view); };
+});
+
+/* theme */
+(function(){
+  var saved = safeGet("hundredDays.theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  $("#themeBtn").onclick = function(){
+    var cur = document.documentElement.getAttribute("data-theme");
+    if (!cur) cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    var next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    safeSet("hundredDays.theme", next);
+  };
+})();
+
+/* data panel */
+$("#exportBtn").onclick = function(){
+  var payload = { app: "100-days-tracker", version: 1, exportedAt: new Date().toISOString(), start: "2026-09-19", tasks: TASKS, data: data };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  var n = new Date();
+  a.href = url;
+  a.download = "100-days-backup-" + n.getFullYear() + pad(n.getMonth() + 1) + pad(n.getDate()) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  toast("Backup downloaded");
+};
+$("#importBtn").onclick = function(){ $("#fileIn").click(); };
+$("#fileIn").onchange = function(e){
+  var f = e.target.files && e.target.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try {
+      var p = JSON.parse(r.result);
+      var src = p && p.data ? p.data : p;
+      var n = 0;
+      PROFILES.forEach(function(pr){
+        if (src && src[pr.id] && typeof src[pr.id] === "object"){
+          data[pr.id] = src[pr.id];
+          n += Object.keys(src[pr.id]).length;
+        }
+      });
+      save(); renderAll();
+      toast("Imported " + n + " marks");
+    } catch(err){ toast("Couldn't read that file"); }
+    e.target.value = "";
+  };
+  r.readAsText(f);
+};
+$("#printBtn").onclick = function(){ setView("grid"); setTimeout(function(){ window.print(); }, 120); };
+$("#resetBtn").onclick = function(){
+  var btn = $("#resetBtn");
+  if (!resetArmed){
+    resetArmed = true;
+    btn.textContent = "Click again to erase " + (PROFILES.filter(function(p){return p.id===profile;})[0].short) + "'s data";
+    setTimeout(function(){ resetArmed = false; btn.textContent = "Reset this profile"; }, 4000);
+    return;
+  }
+  data[profile] = {}; save(); resetArmed = false;
+  btn.textContent = "Reset this profile";
+  renderAll(); toast("Profile reset");
+};
+
+/* ============ go ============ */
+$("#range").textContent = "19 Sep – 27 Dec 2026 · " + TASKS.length + " daily habits";
+renderProfiles();
+renderBlockSeg();
+renderAll();
+
+/* pick the block containing today on first paint */
+(function(){
+  var ti = todayIndex() || 1;
+  if (!safeGet("hundredDays.block")){
+    var b = BLOCKS.filter(function(x){ return x.id !== "all" && ti >= x.from && ti <= x.to; })[0];
+    if (b){ block = b.id; renderBlockSeg(); }
+  }
+})();
+})();
+</script>
+</body>
+</html>
