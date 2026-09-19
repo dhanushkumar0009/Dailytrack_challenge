@@ -14,9 +14,9 @@
   --accent:#4f46e5; --accent-soft:#eceafe;
   --done:#12a150; --done-soft:#e3f6eb;
   --miss:#e0405a; --miss-soft:#fde8eb;
+  --warn:#b26a00; --warn-soft:#fdf0dc;
   --shadow:0 1px 2px rgba(16,20,35,.05), 0 8px 24px -12px rgba(16,20,35,.18);
   --radius:14px;
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -25,6 +25,7 @@
     --accent:#8b83ff; --accent-soft:#252244;
     --done:#2ecc71; --done-soft:#14301f;
     --miss:#ff6b81; --miss-soft:#331a20;
+    --warn:#e0a458; --warn-soft:#332813;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px -14px rgba(0,0,0,.8);
   }
 }
@@ -34,23 +35,20 @@
   --accent:#8b83ff; --accent-soft:#252244;
   --done:#2ecc71; --done-soft:#14301f;
   --miss:#ff6b81; --miss-soft:#331a20;
+  --warn:#e0a458; --warn-soft:#332813;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 28px -14px rgba(0,0,0,.8);
 }
 
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{
-  background:var(--bg); color:var(--text);
+body{background:var(--bg);color:var(--text);
   font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  font-size:15px; line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  -webkit-text-size-adjust:100%;
-}
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
 .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 72px}
 button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 h1,h2,h3{margin:0;line-height:1.25;letter-spacing:-.01em}
+input{font:inherit}
 
-/* ---------- header ---------- */
 header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:18px}
 .brand h1{font-size:19px;font-weight:700}
 .brand p{margin:3px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.02em}
@@ -60,17 +58,24 @@ header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:s
 .seg button{padding:7px 13px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;transition:.15s}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .seg button:hover{color:var(--text)}
-
 .icon-btn{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);transition:.15s}
 .icon-btn:hover{color:var(--text);border-color:var(--faint)}
 
-/* ---------- cards ---------- */
+/* sync chip in header */
+.chip{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:10px;
+  border:1px solid var(--border);background:var(--surface);font-size:12.5px;font-weight:600;color:var(--muted);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--faint)}
+.dot.ok{background:var(--done);box-shadow:0 0 0 3px var(--done-soft)}
+.dot.busy{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);animation:pulse 1.1s infinite}
+.dot.bad{background:var(--miss);box-shadow:0 0 0 3px var(--miss-soft)}
+.dot.off{background:var(--faint)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
 .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .card-h h2{font-size:15px;font-weight:650}
 .card-h .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
 
-/* ---------- stats ---------- */
 .stats{display:grid;grid-template-columns:auto repeat(3,1fr);gap:18px;align-items:center;padding:18px;margin-bottom:18px}
 .ring{position:relative;width:104px;height:104px;flex:none}
 .ring svg{transform:rotate(-90deg)}
@@ -82,12 +87,8 @@ header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:s
 .stat .v{font-size:25px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
 .stat .v small{font-size:13px;font-weight:500;color:var(--faint);letter-spacing:0}
 .stat .n{font-size:12px;color:var(--muted);margin-top:1px}
-@media (max-width:760px){
-  .stats{grid-template-columns:repeat(2,1fr);gap:14px}
-  .ring{grid-column:1/-1;justify-self:center}
-}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr);gap:14px}.ring{grid-column:1/-1;justify-self:center}}
 
-/* ---------- today ---------- */
 .daynav{display:flex;align-items:center;gap:10px}
 .daynav button{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);display:grid;place-items:center;color:var(--muted);background:var(--surface)}
 .daynav button:hover:not(:disabled){color:var(--text)}
@@ -110,7 +111,6 @@ header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:s
 .linkbtn{font-size:13px;font-weight:600;color:var(--accent);padding:6px 10px;border-radius:8px}
 .linkbtn:hover{background:var(--accent-soft)}
 
-/* ---------- grid ---------- */
 .gridscroll{overflow:auto;max-height:76vh;-webkit-overflow-scrolling:touch}
 table{border-collapse:separate;border-spacing:0;font-size:12px;width:max-content}
 th,td{padding:0;margin:0}
@@ -133,28 +133,45 @@ td.today .cell{outline:1.5px solid var(--accent)}
 tfoot th,tfoot td{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);font-size:9.5px;color:var(--faint);font-variant-numeric:tabular-nums;z-index:2}
 tfoot th{left:0;z-index:4;padding:6px 14px 6px 16px;text-align:left;text-transform:uppercase;letter-spacing:.06em;border-right:1px solid var(--border)}
 tfoot td{padding:6px 0}
-
 .legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)}
 .legend i{width:13px;height:13px;border-radius:4px;display:inline-block;vertical-align:-2px;margin-right:5px}
 
-/* ---------- data panel ---------- */
-.datarow{display:flex;gap:10px;flex-wrap:wrap;padding:16px 18px}
-.btn{padding:9px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);font-size:13.5px;font-weight:600;transition:.15s}
+/* sync panel */
+.pad{padding:18px}
+.btn{padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);font-size:13.5px;font-weight:600;transition:.15s}
 .btn:hover{border-color:var(--faint)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{filter:brightness(1.08)}
 .btn.danger{color:var(--miss)}
 .btn.danger:hover{background:var(--miss-soft);border-color:var(--miss)}
-.hint{padding:0 18px 16px;font-size:12.5px;color:var(--muted);max-width:70ch}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted);font-size:13px;line-height:1.55;max-width:66ch}
+.muted b{color:var(--text)}
+.statusline{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.linkbox{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.linkbox input{flex:1;min-width:220px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface-2);color:var(--text);font-size:12.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.sep{height:1px;background:var(--border);margin:18px 0}
+.adv{font-size:12.5px;color:var(--muted)}
+.adv summary{cursor:pointer;font-weight:600;color:var(--muted);padding:4px 0}
+.adv summary:hover{color:var(--text)}
+.adv .row{margin-top:12px}
 
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:50;box-shadow:0 8px 30px -8px rgba(0,0,0,.5)}
+.banner{display:none;gap:10px;align-items:flex-start;padding:12px 16px;border-radius:12px;margin-bottom:16px;
+  background:var(--warn-soft);border:1px solid var(--warn);font-size:13.5px;line-height:1.5}
+.banner.on{display:flex}
+.banner b{color:var(--warn)}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--text);color:var(--bg);
+  padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:50}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .tabs{margin-bottom:18px;max-width:100%;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:1 0 auto}
 .sm{display:none}
 @media (max-width:470px){
-  .lg{display:none} .sm{display:inline}
+  .lg{display:none}.sm{display:inline}
   .tabs button{padding:7px 10px;font-size:13px}
   .brand h1{font-size:17px}
 }
@@ -166,12 +183,15 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
 <body>
 <div class="wrap">
 
+  <div class="banner" id="banner"><span>⚠</span><div id="bannerMsg"></div></div>
+
   <header>
     <div class="brand">
       <h1>100 Days Challenge Tracker</h1>
       <p id="range">19 Sep – 27 Dec 2026</p>
     </div>
     <div class="hdr-actions">
+      <button class="chip" id="syncChip" title="Sync status"><span class="dot off" id="chipDot"></span><span id="chipText">Sync off</span></button>
       <div class="seg" id="profileSeg" role="group" aria-label="Profile"></div>
       <button class="icon-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">◐</button>
     </div>
@@ -182,30 +202,25 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
       <svg width="104" height="104" viewBox="0 0 104 104" aria-hidden="true">
         <circle cx="52" cy="52" r="45" fill="none" stroke="var(--surface-2)" stroke-width="10"/>
         <circle id="ringArc" cx="52" cy="52" r="45" fill="none" stroke="var(--accent)" stroke-width="10"
-                stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7"
-                style="transition:stroke-dashoffset .5s ease"/>
+                stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="282.7" style="transition:stroke-dashoffset .5s ease"/>
       </svg>
       <div class="val"><b id="pctOverall">0%</b><span>Complete</span></div>
     </div>
     <div class="stat"><div class="k">Day</div><div class="v" id="sDay">—</div><div class="n" id="sDayNote">of 100</div></div>
-    <div class="stat"><div class="k">Perfect-day streak</div><div class="v" id="sStreak">0</div><div class="n" id="sStreakNote">all 10 tasks done</div></div>
-    <div class="stat"><div class="k">Ticks logged</div><div class="v" id="sTicks">0<small> / 1000</small></div><div class="n" id="sMiss">0 missed</div></div>
+    <div class="stat"><div class="k">Perfect-day streak</div><div class="v" id="sStreak">0</div><div class="n" id="sStreakNote">all 10 tasks in a day</div></div>
+    <div class="stat"><div class="k">Ticks logged</div><div class="v" id="sTicks">0<small> / 1000</small></div><div class="n" id="sMiss">0 marked missed</div></div>
   </section>
 
   <div class="seg tabs" role="group" aria-label="View">
     <button data-view="today" aria-pressed="true"><span class="lg">Daily check-in</span><span class="sm">Today</span></button>
     <button data-view="grid" aria-pressed="false"><span class="lg">Full 100-day grid</span><span class="sm">Grid</span></button>
-    <button data-view="data" aria-pressed="false"><span class="lg">Backup &amp; sync</span><span class="sm">Backup</span></button>
+    <button data-view="sync" aria-pressed="false"><span class="lg">Sync &amp; devices</span><span class="sm">Sync</span></button>
   </div>
 
-  <!-- DAILY -->
   <section class="view on" id="view-today">
     <div class="card">
       <div class="card-h">
-        <div>
-          <h2 id="dayTitle">Day 1</h2>
-          <div class="sub" id="dayDate">Saturday, 19 September 2026</div>
-        </div>
+        <div><h2 id="dayTitle">Day 1</h2><div class="sub" id="dayDate"></div></div>
         <div class="daynav">
           <button id="prevDay" aria-label="Previous day">‹</button>
           <div class="lbl"><span id="dayCount">0 / 10 done</span><small id="dayRel">today</small></div>
@@ -223,7 +238,6 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
     </div>
   </section>
 
-  <!-- GRID -->
   <section class="view" id="view-grid">
     <div class="card">
       <div class="card-h">
@@ -239,23 +253,39 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
     </div>
   </section>
 
-  <!-- DATA -->
-  <section class="view" id="view-data">
+  <section class="view" id="view-sync">
     <div class="card">
-      <div class="card-h"><div><h2>Backup &amp; sync</h2><div class="sub">Progress lives in this browser only</div></div></div>
-      <div class="datarow">
-        <button class="btn primary" id="exportBtn">⬇ Export JSON</button>
-        <button class="btn" id="importBtn">⬆ Import JSON</button>
-        <button class="btn" id="printBtn">🖨 Print grid</button>
-        <button class="btn danger" id="resetBtn">Reset this profile</button>
-        <input type="file" id="fileIn" accept="application/json,.json" hidden>
+      <div class="card-h"><div><h2>Sync &amp; devices</h2><div class="sub">Keep every device showing the same ticks</div></div></div>
+      <div class="pad">
+        <div class="statusline"><span class="dot off" id="panelDot"></span><span id="panelText">Sync is off</span></div>
+        <div class="muted" id="panelHelp"></div>
+        <div class="row" style="margin-top:16px" id="panelActions"></div>
+
+        <div id="linkWrap" style="display:none">
+          <div class="muted" style="margin-top:20px"><b>Open this link on your phone</b> to connect it. Send it to yourself on WhatsApp — one tap and that device is synced for good.</div>
+          <div class="linkbox">
+            <input id="syncLink" readonly onclick="this.select()">
+            <button class="btn primary" id="copyLink">Copy link</button>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <details class="adv">
+          <summary>Advanced</summary>
+          <div class="muted" style="margin-top:10px">Join a tracker from another device by pasting its sync code, or keep a file backup.</div>
+          <div class="linkbox">
+            <input id="joinCode" placeholder="Paste sync code from your other device">
+            <button class="btn" id="joinBtn">Join</button>
+          </div>
+          <div class="row">
+            <button class="btn" id="exportBtn">Export backup</button>
+            <button class="btn" id="importBtn">Import backup</button>
+            <button class="btn" id="printBtn">Print grid</button>
+            <button class="btn danger" id="resetBtn">Reset this profile</button>
+            <input type="file" id="fileIn" accept="application/json,.json" hidden>
+          </div>
+        </details>
       </div>
-      <p class="hint">
-        Ticks are saved automatically to this browser's local storage — they survive refreshes and
-        redeploys, but they don't travel between devices. To move progress from phone to laptop:
-        <b>Export JSON</b> here, send yourself the file, then <b>Import JSON</b> on the other device.
-        Import merges both profiles and overwrites whatever is currently stored.
-      </p>
     </div>
   </section>
 
@@ -264,408 +294,541 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
 
 <div class="toast" id="toast"></div>
 
-<script>
-(function(){
-"use strict";
+<script type="module">
+/* ============================================================
+   FIREBASE CONFIG — if sync ever fails, replace this block with
+   a fresh copy from Firebase console → Project settings → Your apps.
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA1GBbRbgqEex1Mpaaszrl7MN0VR9KjMNA",
+  authDomain: "days-tracker-513fa.firebaseapp.com",
+  projectId: "days-tracker-513fa",
+  storageBucket: "days-tracker-513fa.firebasestorage.app",
+  messagingSenderId: "212690042842",
+  appId: "1:212690042842:web:60573799626c0919e00ae3"
+};
+const FB_VERSION = "12.19.0";
+const COLLECTION = "trackers";
 
-/* ============ config ============ */
-var START = new Date(2026, 8, 19);          // 19 Sep 2026 = Day 1
-var DAYS  = 100;                            // ends 27 Dec 2026
-var STORE = "hundredDays.v1";
+/* ============ challenge config ============ */
+const START = new Date(2026, 8, 19);
+const DAYS = 100;
+const STORE = "hundredDays.v2";
+const LEGACY = "hundredDays.v1";
+const SPACE_KEY = "hundredDays.space";
 
-var TASKS = [
-  "5 AM Wake-up",
-  "LeetCode Streak",
-  "DSA + Striver Sheet",
-  "Project Building",
-  "Java (Jenny's Lectures)",
-  "Gym",
-  "Diet – No Sugar",
-  "Mails / Job & Internship Apps",
-  "College Work",
-  "Resume / Skill Improvement"
+const TASKS = ["5 AM Wake-up","LeetCode Streak","DSA + Striver Sheet","Project Building",
+  "Java (Jenny's Lectures)","Gym","Diet – No Sugar","Mails / Job & Internship Apps",
+  "College Work","Resume / Skill Improvement"];
+
+const PROFILES = [
+  { id:"dhanush", name:"Dhanush Kumar", short:"Dhanush" },
+  { id:"ramya",   name:"Ramya Sree",    short:"Ramya"   }
 ];
 
-var PROFILES = [
-  { id: "dhanush", name: "Dhanush Kumar", short: "Dhanush" },
-  { id: "ramya",   name: "Ramya Sree",    short: "Ramya"   }
+const BLOCKS = [
+  {id:"1",label:"1–25",from:1,to:25},{id:"2",label:"26–50",from:26,to:50},
+  {id:"3",label:"51–75",from:51,to:75},{id:"4",label:"76–100",from:76,to:100},
+  {id:"all",label:"All",from:1,to:100}
 ];
 
-var BLOCKS = [
-  { id: "1",   label: "1–25",   from: 1,  to: 25  },
-  { id: "2",   label: "26–50",  from: 26, to: 50  },
-  { id: "3",   label: "51–75",  from: 51, to: 75  },
-  { id: "4",   label: "76–100", from: 76, to: 100 },
-  { id: "all", label: "All",    from: 1,  to: 100 }
-];
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTH_FULL=["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-var DOW = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-var MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+/* ============ storage helpers ============ */
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); return true; }catch(e){ return false; } }
+function lsDel(k){ try{ localStorage.removeItem(k); }catch(e){} }
 
-/* ============ state ============ */
-var data    = load();                       // { profileId: { "day:taskIndex": 1|2 } }
-var profile = safeGet("hundredDays.profile") || PROFILES[0].id;
-var block   = safeGet("hundredDays.block")   || "1";
-var view    = "today";
-var curDay  = clamp(todayIndex() || 1, 1, DAYS);
-var resetArmed = false;
+const storageOK = (()=>{ try{ const k="__p"+Date.now(); localStorage.setItem(k,"1");
+  const ok = localStorage.getItem(k)==="1"; localStorage.removeItem(k); return ok; }catch(e){ return false; } })();
 
-function safeGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
-function safeSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+/* Data shape: { p: { profileId: { "day:task": [state, timestamp] } } }
+   state 0 = cleared (tombstone, kept so a clear syncs), 1 = done, 2 = missed. */
+function emptyData(){ const d={p:{}}; PROFILES.forEach(p=>d.p[p.id]={}); return d; }
 
-function load(){
-  var d = {};
-  PROFILES.forEach(function(p){ d[p.id] = {}; });
-  try {
-    var raw = localStorage.getItem(STORE);
-    if (raw){
-      var p = JSON.parse(raw);
-      PROFILES.forEach(function(pr){
-        if (p && p[pr.id] && typeof p[pr.id] === "object") d[pr.id] = p[pr.id];
-      });
+function normalize(raw){
+  const d = emptyData();
+  if (!raw || typeof raw !== "object") return d;
+  const src = raw.p && typeof raw.p === "object" ? raw.p : raw;
+  PROFILES.forEach(pr=>{
+    const m = src[pr.id];
+    if (!m || typeof m !== "object") return;
+    for (const k in m){
+      const v = m[k];
+      if (Array.isArray(v)) d.p[pr.id][k] = [Number(v[0])||0, Number(v[1])||0];
+      else if (typeof v === "number") d.p[pr.id][k] = [v, 0];   // legacy v1
     }
-  } catch(e){}
+  });
   return d;
 }
-function save(){ safeSet(STORE, JSON.stringify(data)); }
+
+function loadLocal(){
+  let raw = lsGet(STORE);
+  if (!raw){
+    const old = lsGet(LEGACY);                 // one-time migration from the old format
+    if (old){ try{ const d = normalize(JSON.parse(old)); saveLocal(d); return d; }catch(e){} }
+    return emptyData();
+  }
+  try{ return normalize(JSON.parse(raw)); }catch(e){ return emptyData(); }
+}
+function saveLocal(d){ return lsSet(STORE, JSON.stringify(d)); }
+
+/* Last-write-wins merge: for each mark, the newer timestamp survives. */
+function mergeData(a, b){
+  const out = emptyData();
+  PROFILES.forEach(pr=>{
+    const A = a.p[pr.id]||{}, B = b.p[pr.id]||{}, O = out.p[pr.id];
+    for (const k in A) O[k] = A[k];
+    for (const k in B){
+      const cur = O[k];
+      if (!cur || (B[k][1]||0) > (cur[1]||0)) O[k] = B[k];
+    }
+  });
+  return out;
+}
+function sameData(a,b){ return JSON.stringify(a) === JSON.stringify(b); }
+
+/* ============ state ============ */
+let data = loadLocal();
+let profile = lsGet("hundredDays.profile") || PROFILES[0].id;
+let block = lsGet("hundredDays.block") || "1";
+let view = "today";
+let curDay = clamp(todayIndex() || 1, 1, DAYS);
+let resetArmed = false;
 
 /* ============ dates ============ */
-function dateOf(day){ var d = new Date(START.getTime()); d.setDate(d.getDate() + (day - 1)); return d; }
+function dateOf(d){ const x = new Date(START.getTime()); x.setDate(x.getDate()+(d-1)); return x; }
 function midnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-function todayIndex(){
-  var diff = Math.round((midnight(new Date()) - START) / 86400000) + 1;
-  return (diff >= 1 && diff <= DAYS) ? diff : 0;   // 0 = outside the challenge window
-}
-function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
-function pad(n){ return n < 10 ? "0" + n : "" + n; }
+function todayIndex(){ const n = Math.round((midnight(new Date())-START)/86400000)+1; return (n>=1&&n<=DAYS)?n:0; }
+function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+function pad(n){ return n<10?"0"+n:""+n; }
 
-/* ============ cell access ============ */
-function key(day, t){ return day + ":" + t; }
-function getS(day, t){ return data[profile][key(day,t)] || 0; }
-function setS(day, t, v){
-  var k = key(day, t);
-  if (v) data[profile][k] = v; else delete data[profile][k];
-  save();
+/* ============ marks ============ */
+const key = (d,t)=> d+":"+t;
+function getS(d,t){ const e = data.p[profile][key(d,t)]; return e ? e[0] : 0; }
+function setS(d,t,v){
+  const fresh = storageOK ? loadLocal() : data;      // never clobber another tab
+  fresh.p[profile][key(d,t)] = [v, Date.now()];
+  data = fresh;
+  commit();
 }
-function cycle(day, t){ setS(day, t, (getS(day,t) + 1) % 3); }
+function commit(){
+  if (!saveLocal(data)) showBanner("This browser is blocking storage, so ticks can't be saved here. Turn off private/incognito mode, or allow site data for this page.");
+  renderAll();
+  Sync.push();
+}
 
-/* ============ stats ============ */
+function counts(){
+  let done=0, miss=0;
+  const m = data.p[profile];
+  for (const k in m){ const s=m[k][0]; if(s===1) done++; else if(s===2) miss++; }
+  return {done, miss};
+}
+function isPerfect(d){ for(let t=0;t<TASKS.length;t++) if(getS(d,t)!==1) return false; return true; }
+function dayDone(d){ let n=0; for(let t=0;t<TASKS.length;t++) if(getS(d,t)===1) n++; return n; }
+function taskDone(t){ let n=0; for(let d=1;d<=DAYS;d++) if(getS(d,t)===1) n++; return n; }
+
 function stats(){
-  var done = 0, miss = 0;
-  for (var d = 1; d <= DAYS; d++){
-    for (var t = 0; t < TASKS.length; t++){
-      var s = getS(d, t);
-      if (s === 1) done++; else if (s === 2) miss++;
-    }
-  }
-  var total = DAYS * TASKS.length;
-
-  // perfect-day streak counting back from the most recent elapsed day
-  var ti = todayIndex();
-  var end = ti || (midnight(new Date()) > START ? DAYS : 0);
-  var streak = 0;
+  const {done,miss} = counts();
+  const total = DAYS*TASKS.length;
+  const ti = todayIndex();
+  let end = ti || (midnight(new Date())>START ? DAYS : 0);
+  let streak = 0;
   if (end){
-    if (!isPerfect(end)) end--;                       // today still in progress
-    for (var d2 = end; d2 >= 1; d2--){
-      if (isPerfect(d2)) streak++; else break;
-    }
+    if (!isPerfect(end)) end--;
+    for (let d=end; d>=1; d--){ if (isPerfect(d)) streak++; else break; }
   }
-  return { done: done, miss: miss, total: total, pct: total ? done / total : 0, streak: streak, today: ti };
-}
-function isPerfect(day){
-  for (var t = 0; t < TASKS.length; t++) if (getS(day,t) !== 1) return false;
-  return true;
-}
-function dayDone(day){
-  var n = 0;
-  for (var t = 0; t < TASKS.length; t++) if (getS(day,t) === 1) n++;
-  return n;
-}
-function taskDone(t){
-  var n = 0;
-  for (var d = 1; d <= DAYS; d++) if (getS(d,t) === 1) n++;
-  return n;
+  return {done, miss, total, pct: total?done/total:0, streak, today: ti};
 }
 
-/* ============ dom helpers ============ */
-function $(s){ return document.querySelector(s); }
-function el(tag, cls, txt){
-  var e = document.createElement(tag);
-  if (cls) e.className = cls;
-  if (txt != null) e.textContent = txt;
-  return e;
-}
-var toastT;
-function toast(msg){
-  var t = $("#toast");
-  t.textContent = msg; t.classList.add("on");
-  clearTimeout(toastT);
-  toastT = setTimeout(function(){ t.classList.remove("on"); }, 2200);
-}
+/* ============ dom ============ */
+const $ = s => document.querySelector(s);
+function el(tag, cls, txt){ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; }
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"), 2300); }
+function showBanner(msg){ $("#bannerMsg").innerHTML = msg; $("#banner").classList.add("on"); }
+function hideBanner(){ $("#banner").classList.remove("on"); }
+
+/* ============ sync engine ============ */
+const Sync = (() => {
+  let space = lsGet(SPACE_KEY) || null;
+  let db=null, docRef=null, unsub=null, ready=false;
+  let state = "off";              // off | connecting | ok | error
+  let detail = "";
+  let pushT=null, applying=false;
+  let fs = null;
+
+  function randomId(){
+    const a = new Uint8Array(16);
+    (crypto||window.crypto).getRandomValues(a);
+    return Array.from(a, b=>("0"+b.toString(16)).slice(-2)).join("");
+  }
+
+  function set(st, msg){ state=st; detail=msg||""; renderSync(); }
+
+  async function boot(){
+    if (!space) { set("off"); return; }
+    set("connecting", "Connecting…");
+    try{
+      const appMod = await import(`https://www.gstatic.com/firebasejs/${FB_VERSION}/firebase-app.js`);
+      fs = await import(`https://www.gstatic.com/firebasejs/${FB_VERSION}/firebase-firestore.js`);
+      const app = appMod.initializeApp(FIREBASE_CONFIG);
+      db = fs.getFirestore(app);
+      docRef = fs.doc(db, COLLECTION, space);
+      listen();
+    }catch(e){
+      set("error", "Couldn't load the sync library — check your internet connection. Your ticks are still saved on this device.");
+    }
+  }
+
+  function listen(){
+    if (unsub) { unsub(); unsub=null; }
+    unsub = fs.onSnapshot(docRef, snap => {
+      ready = true;
+      const remote = normalize(snap.exists() ? snap.data() : {});
+      const merged = mergeData(data, remote);
+      if (!sameData(merged, data)){
+        data = merged;
+        saveLocal(data);
+        renderAll();
+      }
+      set("ok", "");
+      // if we hold marks the server hasn't got, send them up
+      if (!snap.exists() || !sameData(merged, remote)) writeNow();
+    }, err => {
+      set("error", friendly(err));
+    });
+  }
+
+  function friendly(err){
+    const c = (err && err.code) || "";
+    if (c.includes("permission-denied")) return "Firebase refused access — check the Rules were published (they should allow the <code>trackers</code> collection).";
+    if (c.includes("unavailable")) return "Can't reach Firebase right now. Ticks are saved here and will sync when you're back online.";
+    if (c.includes("not-found")) return "That Firestore database wasn't found — make sure the database was created in the console.";
+    return "Sync error" + (c ? " ("+c+")" : "") + ". Your ticks are still safe on this device.";
+  }
+
+  async function writeNow(){
+    if (!docRef || applying) return;
+    applying = true;
+    try{
+      const payload = {};
+      PROFILES.forEach(p => payload[p.id] = data.p[p.id]);
+      payload.updatedAt = Date.now();
+      await fs.setDoc(docRef, payload);
+      if (state !== "error") set("ok","");
+    }catch(e){
+      set("error", friendly(e));
+    }finally{ applying=false; }
+  }
+
+  return {
+    get on(){ return !!space; },
+    get state(){ return state; },
+    get detail(){ return detail; },
+    get code(){ return space; },
+    boot,
+    push(){
+      if (!space || !docRef) return;
+      clearTimeout(pushT);
+      pushT = setTimeout(writeNow, 700);
+    },
+    async enable(){
+      space = randomId();
+      lsSet(SPACE_KEY, space);
+      await boot();
+      toast("Sync is on");
+    },
+    async join(code){
+      code = (code||"").trim().replace(/^.*#s=/, "");
+      if (!/^[a-f0-9]{8,64}$/i.test(code)) { toast("That doesn't look like a sync code"); return; }
+      space = code;
+      lsSet(SPACE_KEY, space);
+      await boot();
+      toast("Joined — pulling your ticks");
+    },
+    disable(){
+      if (unsub){ unsub(); unsub=null; }
+      space=null; docRef=null; lsDel(SPACE_KEY);
+      set("off");
+      toast("Sync turned off — this device is on its own now");
+    },
+    link(){ return space ? location.origin + location.pathname + "#s=" + space : ""; }
+  };
+})();
 
 /* ============ render: header / stats ============ */
 function renderProfiles(){
-  var seg = $("#profileSeg");
-  seg.innerHTML = "";
-  PROFILES.forEach(function(p){
-    var b = el("button", null, p.short);
-    b.setAttribute("aria-pressed", p.id === profile ? "true" : "false");
+  const seg = $("#profileSeg"); seg.innerHTML="";
+  PROFILES.forEach(p=>{
+    const b = el("button", null, p.short);
+    b.setAttribute("aria-pressed", p.id===profile ? "true":"false");
     b.title = p.name;
-    b.onclick = function(){
-      profile = p.id; safeSet("hundredDays.profile", profile);
-      renderProfiles(); renderAll(); toast(p.name + "'s tracker");
-    };
+    b.onclick = ()=>{ profile=p.id; lsSet("hundredDays.profile", profile); renderProfiles(); renderAll(); toast(p.name+"'s tracker"); };
     seg.appendChild(b);
   });
 }
 
 function renderStats(){
-  var s = stats();
-  var C = 2 * Math.PI * 45;
-  $("#ringArc").setAttribute("stroke-dashoffset", String(C * (1 - s.pct)));
-  $("#pctOverall").textContent = Math.round(s.pct * 100) + "%";
-
+  const s = stats();
+  const C = 2*Math.PI*45;
+  $("#ringArc").setAttribute("stroke-dashoffset", String(C*(1-s.pct)));
+  $("#pctOverall").textContent = Math.round(s.pct*100)+"%";
   $("#sDay").textContent = s.today ? s.today : "—";
-  var startsIn = Math.round((START - midnight(new Date())) / 86400000);
-  $("#sDayNote").textContent = s.today ? "of 100 · " + (DAYS - s.today) + " to go"
-                   : (startsIn > 0 ? "starts in " + startsIn + " day" + (startsIn === 1 ? "" : "s") : "challenge finished");
-
+  const startsIn = Math.round((START - midnight(new Date()))/86400000);
+  $("#sDayNote").textContent = s.today ? "of 100 · "+(DAYS-s.today)+" to go"
+    : (startsIn>0 ? "starts in "+startsIn+" day"+(startsIn===1?"":"s") : "challenge finished");
   $("#sStreak").textContent = s.streak;
-  $("#sStreakNote").textContent = s.streak === 0 ? "all 10 tasks in a day" : "consecutive perfect days";
+  $("#sStreakNote").textContent = s.streak===0 ? "all 10 tasks in a day" : "consecutive perfect days";
+  $("#sTicks").innerHTML = s.done+"<small> / "+s.total+"</small>";
+  $("#sMiss").textContent = s.miss+" marked missed";
+}
 
-  $("#sTicks").innerHTML = s.done + "<small> / " + s.total + "</small>";
-  $("#sMiss").textContent = s.miss + " marked missed";
+/* ============ render: sync ============ */
+const DOTCLASS = { off:"off", connecting:"busy", ok:"ok", error:"bad" };
+const CHIPTEXT = { off:"Sync off", connecting:"Syncing…", ok:"Synced", error:"Sync problem" };
+
+function renderSync(){
+  const st = Sync.state;
+  $("#chipDot").className = "dot "+DOTCLASS[st];
+  $("#chipText").textContent = CHIPTEXT[st];
+  $("#panelDot").className = "dot "+DOTCLASS[st];
+
+  const pt = $("#panelText"), ph = $("#panelHelp"), pa = $("#panelActions");
+  pa.innerHTML = "";
+
+  if (st === "off"){
+    pt.textContent = "Sync is off";
+    ph.innerHTML = "Right now your ticks live only in this browser. Turn on sync and every device you connect stays up to date automatically — tick on your phone, your laptop shows it a second later. Nothing to export, nothing to remember.";
+    const b = el("button","btn primary","Turn on sync");
+    b.onclick = ()=>Sync.enable();
+    pa.appendChild(b);
+    $("#linkWrap").style.display = "none";
+  } else {
+    pt.textContent = st==="ok" ? "Synced across your devices" : (st==="connecting" ? "Connecting…" : "Sync problem");
+    ph.innerHTML = st==="error"
+      ? Sync.detail
+      : "Every tick is saved on this device first, then mirrored to your other devices. It keeps working offline and catches up when you're back.";
+    const off = el("button","btn danger","Turn off sync");
+    off.onclick = ()=>Sync.disable();
+    pa.appendChild(off);
+    $("#linkWrap").style.display = "";
+    $("#syncLink").value = Sync.link();
+  }
+  if (!storageOK) showBanner("<b>This browser isn't saving anything.</b> Turn off private/incognito mode, or allow site data for this page, then reload.");
 }
 
 /* ============ render: daily ============ */
 function renderDay(){
-  var d = dateOf(curDay);
-  $("#dayTitle").textContent = "Day " + curDay;
-  $("#dayDate").textContent = DOW[d.getDay()] + ", " + d.getDate() + " " + MONTH_FULL[d.getMonth()] + " " + d.getFullYear();
+  const d = dateOf(curDay);
+  $("#dayTitle").textContent = "Day "+curDay;
+  $("#dayDate").textContent = DOW[d.getDay()]+", "+d.getDate()+" "+MONTH_FULL[d.getMonth()]+" "+d.getFullYear();
+  const delta = Math.round((midnight(d)-midnight(new Date()))/86400000);
+  $("#dayRel").textContent = delta===0?"today":delta===1?"tomorrow":delta===-1?"yesterday"
+    :(delta>0?"in "+delta+" days":Math.abs(delta)+" days ago");
+  $("#dayCount").textContent = dayDone(curDay)+" / "+TASKS.length+" done";
+  $("#prevDay").disabled = curDay<=1;
+  $("#nextDay").disabled = curDay>=DAYS;
 
-  var ti = todayIndex();
-  var rel = "";
-  if (ti && curDay === ti) rel = "today";
-  else {
-    var delta = Math.round((midnight(d) - midnight(new Date())) / 86400000);
-    if (delta === 0) rel = "today";
-    else if (delta === 1) rel = "tomorrow";
-    else if (delta === -1) rel = "yesterday";
-    else if (delta > 0) rel = "in " + delta + " days";
-    else rel = Math.abs(delta) + " days ago";
-  }
-  $("#dayRel").textContent = rel;
-  $("#dayCount").textContent = dayDone(curDay) + " / " + TASKS.length + " done";
-  $("#prevDay").disabled = curDay <= 1;
-  $("#nextDay").disabled = curDay >= DAYS;
-
-  var list = $("#taskList");
-  list.innerHTML = "";
-  TASKS.forEach(function(name, t){
-    var s = getS(curDay, t);
-    var row = el("div", "trow");
-    row.setAttribute("data-s", s);
-
-    var mk = el("div", "mark");
-    var bd = el("button", "mk-d", "✓"); bd.title = "Done"; bd.setAttribute("aria-label", "Mark done: " + name);
-    var bm = el("button", "mk-m", "✕"); bm.title = "Missed"; bm.setAttribute("aria-label", "Mark missed: " + name);
-    bd.onclick = function(){ setS(curDay, t, s === 1 ? 0 : 1); renderAll(); };
-    bm.onclick = function(){ setS(curDay, t, s === 2 ? 0 : 2); renderAll(); };
+  const list = $("#taskList"); list.innerHTML="";
+  TASKS.forEach((name,t)=>{
+    const s = getS(curDay,t);
+    const row = el("div","trow"); row.setAttribute("data-s",s);
+    const mk = el("div","mark");
+    const bd = el("button","mk-d","✓"); bd.title="Done"; bd.setAttribute("aria-label","Mark done: "+name);
+    const bm = el("button","mk-m","✕"); bm.title="Missed"; bm.setAttribute("aria-label","Mark missed: "+name);
+    bd.onclick = ()=>setS(curDay,t, s===1?0:1);
+    bm.onclick = ()=>setS(curDay,t, s===2?0:2);
     mk.appendChild(bd); mk.appendChild(bm);
-
     row.appendChild(mk);
-    row.appendChild(el("div", "name", name));
-    row.appendChild(el("div", "pct", taskDone(t) + "/" + DAYS));
+    row.appendChild(el("div","name",name));
+    row.appendChild(el("div","pct", taskDone(t)+"/"+DAYS));
     list.appendChild(row);
   });
 }
 
 /* ============ render: grid ============ */
 function renderBlockSeg(){
-  var seg = $("#blockSeg");
-  seg.innerHTML = "";
-  BLOCKS.forEach(function(b){
-    var btn = el("button", null, b.label);
-    btn.setAttribute("aria-pressed", b.id === block ? "true" : "false");
-    btn.onclick = function(){ block = b.id; safeSet("hundredDays.block", block); renderBlockSeg(); renderGrid(); };
+  const seg = $("#blockSeg"); seg.innerHTML="";
+  BLOCKS.forEach(b=>{
+    const btn = el("button", null, b.label);
+    btn.setAttribute("aria-pressed", b.id===block?"true":"false");
+    btn.onclick = ()=>{ block=b.id; lsSet("hundredDays.block",block); renderBlockSeg(); renderGrid(); };
     seg.appendChild(btn);
   });
 }
 
 function renderGrid(){
-  var b = BLOCKS.filter(function(x){ return x.id === block; })[0] || BLOCKS[0];
-  var ti = todayIndex();
-  var tbl = $("#grid");
-  tbl.innerHTML = "";
+  const b = BLOCKS.find(x=>x.id===block) || BLOCKS[0];
+  const ti = todayIndex();
+  const tbl = $("#grid"); tbl.innerHTML="";
 
-  var thead = el("thead"), hr = el("tr");
-  var corner = el("th", "corner", "Task / Day");
-  hr.appendChild(corner);
-  for (var d = b.from; d <= b.to; d++){
-    var dt = dateOf(d);
-    var th = el("th", "dayh");
+  const thead=el("thead"), hr=el("tr");
+  hr.appendChild(el("th","corner","Task / Day"));
+  for(let d=b.from; d<=b.to; d++){
+    const dt=dateOf(d), th=el("th","dayh");
     th.appendChild(document.createTextNode(String(d)));
-    var sp = el("span", null, pad(dt.getDate()) + "/" + pad(dt.getMonth() + 1));
-    th.appendChild(sp);
-    if (d === ti) th.classList.add("today");
-    if (dt.getDate() === 1 && d !== b.from) th.classList.add("mstart");
-    th.title = "Day " + d + " · " + dt.getDate() + " " + MON[dt.getMonth()];
+    th.appendChild(el("span",null,pad(dt.getDate())+"/"+pad(dt.getMonth()+1)));
+    if(d===ti) th.classList.add("today");
+    if(dt.getDate()===1 && d!==b.from) th.classList.add("mstart");
+    th.title = "Day "+d+" · "+dt.getDate()+" "+MON[dt.getMonth()];
     hr.appendChild(th);
   }
   thead.appendChild(hr); tbl.appendChild(thead);
 
-  var tbody = el("tbody");
-  TASKS.forEach(function(name, t){
-    var tr = el("tr");
-    var th = el("th", null, name); th.title = name;
-    tr.appendChild(th);
-    for (var d = b.from; d <= b.to; d++){
-      var td = el("td");
-      var s = getS(d, t);
-      td.setAttribute("data-s", s);
-      if (d === ti) td.classList.add("today");
-      if (dateOf(d).getDate() === 1 && d !== b.from) td.classList.add("mstart");
-      var btn = el("button", "cell", s === 1 ? "✓" : (s === 2 ? "✕" : "·"));
-      btn.setAttribute("aria-label", name + ", day " + d);
-      btn.title = name + " · Day " + d;
-      (function(dd, tt){ btn.onclick = function(){ cycle(dd, tt); renderAll(); }; })(d, t);
-      td.appendChild(btn);
-      tr.appendChild(td);
+  const tbody=el("tbody");
+  TASKS.forEach((name,t)=>{
+    const tr=el("tr"); const th=el("th",null,name); th.title=name; tr.appendChild(th);
+    for(let d=b.from; d<=b.to; d++){
+      const td=el("td"), s=getS(d,t);
+      td.setAttribute("data-s",s);
+      if(d===ti) td.classList.add("today");
+      if(dateOf(d).getDate()===1 && d!==b.from) td.classList.add("mstart");
+      const btn=el("button","cell", s===1?"✓":(s===2?"✕":"·"));
+      btn.setAttribute("aria-label", name+", day "+d);
+      btn.title = name+" · Day "+d;
+      btn.onclick = ()=>setS(d,t,(getS(d,t)+1)%3);
+      td.appendChild(btn); tr.appendChild(td);
     }
     tbody.appendChild(tr);
   });
   tbl.appendChild(tbody);
 
-  var tfoot = el("tfoot"), fr = el("tr");
-  fr.appendChild(el("th", null, "Day total"));
-  for (var d2 = b.from; d2 <= b.to; d2++){
-    var n = dayDone(d2);
-    var td2 = el("td", null, n ? String(n) : "");
-    if (n === TASKS.length) td2.style.color = "var(--done)";
-    fr.appendChild(td2);
+  const tfoot=el("tfoot"), fr=el("tr");
+  fr.appendChild(el("th",null,"Day total"));
+  for(let d=b.from; d<=b.to; d++){
+    const n=dayDone(d), td=el("td",null,n?String(n):"");
+    if(n===TASKS.length) td.style.color="var(--done)";
+    fr.appendChild(td);
   }
   tfoot.appendChild(fr); tbl.appendChild(tfoot);
 }
 
+function renderAll(){ renderStats(); renderDay(); if(view==="grid") renderGrid(); }
+
 /* ============ views ============ */
 function setView(v){
-  view = v;
-  Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){
-    b.setAttribute("aria-pressed", b.dataset.view === v ? "true" : "false");
-  });
-  ["today","grid","data"].forEach(function(id){
-    $("#view-" + id).classList.toggle("on", id === v);
-  });
-  if (v === "grid") renderGrid();
+  view=v;
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.view===v?"true":"false"));
+  ["today","grid","sync"].forEach(id=>$("#view-"+id).classList.toggle("on", id===v));
+  if(v==="grid") renderGrid();
+  if(v==="sync") renderSync();
 }
 
-function renderAll(){ renderStats(); renderDay(); if (view === "grid") renderGrid(); }
-
 /* ============ events ============ */
-$("#prevDay").onclick = function(){ curDay = clamp(curDay - 1, 1, DAYS); renderDay(); };
-$("#nextDay").onclick = function(){ curDay = clamp(curDay + 1, 1, DAYS); renderDay(); };
-$("#jumpToday").onclick = function(){
-  var ti = todayIndex();
-  if (!ti){ toast(midnight(new Date()) < START ? "Challenge starts 19 Sep 2026" : "Challenge ended 27 Dec 2026"); return; }
-  curDay = ti; renderDay();
+$("#prevDay").onclick = ()=>{ curDay=clamp(curDay-1,1,DAYS); renderDay(); };
+$("#nextDay").onclick = ()=>{ curDay=clamp(curDay+1,1,DAYS); renderDay(); };
+$("#jumpToday").onclick = ()=>{
+  const ti=todayIndex();
+  if(!ti){ toast(midnight(new Date())<START ? "Challenge starts 19 Sep 2026" : "Challenge ended 27 Dec 2026"); return; }
+  curDay=ti; renderDay();
 };
-$("#allDone").onclick = function(){
-  for (var t = 0; t < TASKS.length; t++) setS(curDay, t, 1);
-  renderAll(); toast("Day " + curDay + " — perfect day ✓");
-};
-$("#clearDay").onclick = function(){
-  for (var t = 0; t < TASKS.length; t++) setS(curDay, t, 0);
-  renderAll(); toast("Day " + curDay + " cleared");
-};
+$("#allDone").onclick = ()=>{ for(let t=0;t<TASKS.length;t++) setS(curDay,t,1); toast("Day "+curDay+" — perfect day ✓"); };
+$("#clearDay").onclick = ()=>{ for(let t=0;t<TASKS.length;t++) setS(curDay,t,0); toast("Day "+curDay+" cleared"); };
+$("#syncChip").onclick = ()=>setView("sync");
 
-document.addEventListener("keydown", function(e){
-  if (view !== "today" || e.target.tagName === "INPUT") return;
-  if (e.key === "ArrowLeft" && curDay > 1){ curDay--; renderDay(); }
-  if (e.key === "ArrowRight" && curDay < DAYS){ curDay++; renderDay(); }
+document.addEventListener("keydown", e=>{
+  if(view!=="today" || e.target.tagName==="INPUT") return;
+  if(e.key==="ArrowLeft" && curDay>1){ curDay--; renderDay(); }
+  if(e.key==="ArrowRight" && curDay<DAYS){ curDay++; renderDay(); }
 });
-
-Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){
-  b.onclick = function(){ setView(b.dataset.view); };
-});
+document.querySelectorAll(".tabs button").forEach(b=>{ b.onclick = ()=>setView(b.dataset.view); });
 
 /* theme */
-(function(){
-  var saved = safeGet("hundredDays.theme");
-  if (saved) document.documentElement.setAttribute("data-theme", saved);
-  $("#themeBtn").onclick = function(){
-    var cur = document.documentElement.getAttribute("data-theme");
-    if (!cur) cur = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    var next = cur === "dark" ? "light" : "dark";
+(()=>{
+  const saved = lsGet("hundredDays.theme");
+  if(saved) document.documentElement.setAttribute("data-theme", saved);
+  $("#themeBtn").onclick = ()=>{
+    let cur = document.documentElement.getAttribute("data-theme");
+    if(!cur) cur = matchMedia("(prefers-color-scheme: dark)").matches ? "dark":"light";
+    const next = cur==="dark" ? "light":"dark";
     document.documentElement.setAttribute("data-theme", next);
-    safeSet("hundredDays.theme", next);
+    lsSet("hundredDays.theme", next);
   };
 })();
 
-/* data panel */
-$("#exportBtn").onclick = function(){
-  var payload = { app: "100-days-tracker", version: 1, exportedAt: new Date().toISOString(), start: "2026-09-19", tasks: TASKS, data: data };
-  var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  var n = new Date();
-  a.href = url;
-  a.download = "100-days-backup-" + n.getFullYear() + pad(n.getMonth() + 1) + pad(n.getDate()) + ".json";
+/* other tabs on this device */
+window.addEventListener("storage", e=>{
+  if(e.key!==STORE) return;
+  data = mergeData(data, loadLocal());
+  saveLocal(data); renderAll();
+});
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible"){ data = mergeData(data, loadLocal()); renderAll(); }
+});
+
+/* sync panel buttons */
+$("#copyLink").onclick = async ()=>{
+  const v = $("#syncLink").value;
+  try{ await navigator.clipboard.writeText(v); toast("Link copied"); }
+  catch(e){ $("#syncLink").select(); document.execCommand&&document.execCommand("copy"); toast("Link copied"); }
+};
+$("#joinBtn").onclick = ()=>Sync.join($("#joinCode").value);
+
+$("#exportBtn").onclick = ()=>{
+  const payload = {app:"100-days-tracker", version:2, exportedAt:new Date().toISOString(), start:"2026-09-19", tasks:TASKS, p:data.p};
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url = URL.createObjectURL(blob), a=document.createElement("a"), n=new Date();
+  a.href=url; a.download="100-days-backup-"+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+".json";
   document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
   toast("Backup downloaded");
 };
-$("#importBtn").onclick = function(){ $("#fileIn").click(); };
-$("#fileIn").onchange = function(e){
-  var f = e.target.files && e.target.files[0];
-  if (!f) return;
-  var r = new FileReader();
-  r.onload = function(){
-    try {
-      var p = JSON.parse(r.result);
-      var src = p && p.data ? p.data : p;
-      var n = 0;
-      PROFILES.forEach(function(pr){
-        if (src && src[pr.id] && typeof src[pr.id] === "object"){
-          data[pr.id] = src[pr.id];
-          n += Object.keys(src[pr.id]).length;
-        }
-      });
-      save(); renderAll();
-      toast("Imported " + n + " marks");
-    } catch(err){ toast("Couldn't read that file"); }
-    e.target.value = "";
+$("#importBtn").onclick = ()=>$("#fileIn").click();
+$("#fileIn").onchange = e=>{
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const incoming = normalize(JSON.parse(r.result));
+      data = mergeData(data, incoming);
+      commit(); toast("Backup merged in");
+    }catch(err){ toast("Couldn't read that file"); }
+    e.target.value="";
   };
   r.readAsText(f);
 };
-$("#printBtn").onclick = function(){ setView("grid"); setTimeout(function(){ window.print(); }, 120); };
-$("#resetBtn").onclick = function(){
-  var btn = $("#resetBtn");
-  if (!resetArmed){
+$("#printBtn").onclick = ()=>{ setView("grid"); setTimeout(()=>window.print(),120); };
+$("#resetBtn").onclick = ()=>{
+  const btn = $("#resetBtn");
+  if(!resetArmed){
     resetArmed = true;
-    btn.textContent = "Click again to erase " + (PROFILES.filter(function(p){return p.id===profile;})[0].short) + "'s data";
-    setTimeout(function(){ resetArmed = false; btn.textContent = "Reset this profile"; }, 4000);
+    btn.textContent = "Click again to erase "+PROFILES.find(p=>p.id===profile).short+"'s data";
+    setTimeout(()=>{ resetArmed=false; btn.textContent="Reset this profile"; }, 4000);
     return;
   }
-  data[profile] = {}; save(); resetArmed = false;
-  btn.textContent = "Reset this profile";
-  renderAll(); toast("Profile reset");
+  const now = Date.now();
+  const m = data.p[profile];
+  for(const k in m) m[k] = [0, now];        // tombstones so the clear syncs everywhere
+  resetArmed=false; btn.textContent="Reset this profile";
+  commit(); toast("Profile reset");
 };
 
 /* ============ go ============ */
-$("#range").textContent = "19 Sep – 27 Dec 2026 · " + TASKS.length + " daily habits";
+$("#range").textContent = "19 Sep – 27 Dec 2026 · "+TASKS.length+" daily habits";
 renderProfiles();
 renderBlockSeg();
 renderAll();
+if(!lsGet("hundredDays.block")){
+  const ti = todayIndex()||1;
+  const b = BLOCKS.find(x=>x.id!=="all" && ti>=x.from && ti<=x.to);
+  if(b){ block=b.id; renderBlockSeg(); }
+}
 
-/* pick the block containing today on first paint */
-(function(){
-  var ti = todayIndex() || 1;
-  if (!safeGet("hundredDays.block")){
-    var b = BLOCKS.filter(function(x){ return x.id !== "all" && ti >= x.from && ti <= x.to; })[0];
-    if (b){ block = b.id; renderBlockSeg(); }
+/* adopt a sync code arriving in the URL: ...#s=abc123 */
+(async ()=>{
+  const m = location.hash.match(/#s=([a-f0-9]{8,64})/i);
+  if(m){
+    history.replaceState(null,"",location.pathname+location.search);
+    await Sync.join(m[1]);
+    setView("sync");
+  } else {
+    await Sync.boot();
   }
-})();
+  renderSync();
 })();
 </script>
 </body>
