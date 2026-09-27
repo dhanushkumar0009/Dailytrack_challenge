@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>100 Days Challenge Tracker</title>
-<meta name="description" content="Daily tracker for the 100 Days Challenge — 19 Sep to 27 Dec 2026.">
+<meta name="description" content="Daily tracker for the 100 Days Challenge — 28 Sep to 31 Dec 2026.">
 <meta name="theme-color" content="#0f1117">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Ctext x='50' y='68' font-size='52' font-family='system-ui,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3E100%3C/text%3E%3C/svg%3E">
 <style>
@@ -162,6 +162,8 @@ tfoot td{padding:6px 0}
   background:var(--warn-soft);border:1px solid var(--warn);font-size:13.5px;line-height:1.5}
 .banner.on{display:flex}
 .banner b{color:var(--warn)}
+.banner.test{background:var(--accent-soft);border-color:var(--accent)}
+.banner.test b{color:var(--accent)}
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,16px);background:var(--text);color:var(--bg);
   padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.22s;z-index:50}
@@ -184,11 +186,12 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
 <div class="wrap">
 
   <div class="banner" id="banner"><span>⚠</span><div id="bannerMsg"></div></div>
+  <div class="banner test" id="testBanner"><span>🧪</span><div id="testMsg"></div></div>
 
   <header>
     <div class="brand">
       <h1>100 Days Challenge Tracker</h1>
-      <p id="range">19 Sep – 27 Dec 2026</p>
+      <p id="range">28 Sep – 31 Dec 2026</p>
     </div>
     <div class="hdr-actions">
       <button class="chip" id="syncChip" title="Sync status"><span class="dot off" id="chipDot"></span><span id="chipText">Sync off</span></button>
@@ -206,7 +209,7 @@ footer{margin-top:22px;text-align:center;font-size:12px;color:var(--faint)}
       </svg>
       <div class="val"><b id="pctOverall">0%</b><span>Complete</span></div>
     </div>
-    <div class="stat"><div class="k">Day</div><div class="v" id="sDay">—</div><div class="n" id="sDayNote">of 100</div></div>
+    <div class="stat"><div class="k">Day</div><div class="v" id="sDay">—</div><div class="n" id="sDayNote">of 95</div></div>
     <div class="stat"><div class="k">Perfect-day streak</div><div class="v" id="sStreak">0</div><div class="n" id="sStreakNote">all 10 tasks in a day</div></div>
     <div class="stat"><div class="k">Ticks logged</div><div class="v" id="sTicks">0<small> / 1000</small></div><div class="n" id="sMiss">0 marked missed</div></div>
   </section>
@@ -311,8 +314,12 @@ const FB_VERSION = "12.19.0";
 const COLLECTION = "trackers";
 
 /* ============ challenge config ============ */
-const START = new Date(2026, 8, 19);
-const DAYS = 100;
+const START = new Date(2026, 8, 28);   // Day 1 — Monday 28 Sep 2026
+const DAYS = 95;                       // Day 95 — Thursday 31 Dec 2026
+
+/* Restart cutoff: any mark older than this is discarded on every device, which is
+   how the fresh start propagates without hunting down old rows one by one. */
+const RESET_AT = 1790492664369;        // 27 Sep 2026, 07:04 UTC
 const STORE = "hundredDays.v2";
 const LEGACY = "hundredDays.v1";
 const SPACE_KEY = "hundredDays.space";
@@ -326,11 +333,15 @@ const PROFILES = [
   { id:"ramya",   name:"Ramya Sree",    short:"Ramya"   }
 ];
 
-const BLOCKS = [
-  {id:"1",label:"1–25",from:1,to:25},{id:"2",label:"26–50",from:26,to:50},
-  {id:"3",label:"51–75",from:51,to:75},{id:"4",label:"76–100",from:76,to:100},
-  {id:"all",label:"All",from:1,to:100}
-];
+const BLOCKS = (() => {
+  const out = [];
+  for (let s = 1; s <= DAYS; s += 25){
+    const e = Math.min(s + 24, DAYS);
+    out.push({ id: String(out.length + 1), label: s + "–" + e, from: s, to: e });
+  }
+  out.push({ id:"all", label:"All", from:1, to:DAYS });
+  return out;
+})();
 
 const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DOW=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -348,6 +359,13 @@ const storageOK = (()=>{ try{ const k="__p"+Date.now(); localStorage.setItem(k,"
    state 0 = cleared (tombstone, kept so a clear syncs), 1 = done, 2 = missed. */
 function emptyData(){ const d={p:{}}; PROFILES.forEach(p=>d.p[p.id]={}); return d; }
 
+/* Anything older than the cutoff is discarded on every device.
+   Before Day 1 that's just the old run, so today's ticks are free to play with.
+   The moment Day 1 begins the cutoff jumps to midnight, which clears the test
+   marks everywhere by itself — nothing to remember, nothing to press. */
+function beforeStart(){ return Date.now() < START.getTime(); }
+function cutoff(){ return beforeStart() ? RESET_AT : Math.max(RESET_AT, START.getTime()); }
+
 function normalize(raw){
   const d = emptyData();
   if (!raw || typeof raw !== "object") return d;
@@ -357,8 +375,9 @@ function normalize(raw){
     if (!m || typeof m !== "object") return;
     for (const k in m){
       const v = m[k];
-      if (Array.isArray(v)) d.p[pr.id][k] = [Number(v[0])||0, Number(v[1])||0];
-      else if (typeof v === "number") d.p[pr.id][k] = [v, 0];   // legacy v1
+      const ts = Array.isArray(v) ? (Number(v[1])||0) : 0;
+      if (ts < cutoff()) continue;                              // pre-restart / test mark: drop it
+      if (Array.isArray(v)) d.p[pr.id][k] = [Number(v[0])||0, ts];
     }
   });
   return d;
@@ -404,6 +423,13 @@ function midnight(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()
 function todayIndex(){ const n = Math.round((midnight(new Date())-START)/86400000)+1; return (n>=1&&n<=DAYS)?n:0; }
 function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
 function pad(n){ return n<10?"0"+n:""+n; }
+function shortDate(d){ return d.getDate()+" "+MON[d.getMonth()]+" "+d.getFullYear(); }
+function rangeText(){
+  const a = dateOf(1), b = dateOf(DAYS);
+  const sameYear = a.getFullYear() === b.getFullYear();
+  return a.getDate()+" "+MON[a.getMonth()]+(sameYear ? "" : " "+a.getFullYear())
+       + " – " + b.getDate()+" "+MON[b.getMonth()]+" "+b.getFullYear();
+}
 
 /* ============ marks ============ */
 const key = (d,t)=> d+":"+t;
@@ -579,7 +605,7 @@ function renderStats(){
   $("#pctOverall").textContent = Math.round(s.pct*100)+"%";
   $("#sDay").textContent = s.today ? s.today : "—";
   const startsIn = Math.round((START - midnight(new Date()))/86400000);
-  $("#sDayNote").textContent = s.today ? "of 100 · "+(DAYS-s.today)+" to go"
+  $("#sDayNote").textContent = s.today ? "of "+DAYS+" · "+(DAYS-s.today)+" to go"
     : (startsIn>0 ? "starts in "+startsIn+" day"+(startsIn===1?"":"s") : "challenge finished");
   $("#sStreak").textContent = s.streak;
   $("#sStreakNote").textContent = s.streak===0 ? "all 10 tasks in a day" : "consecutive perfect days";
@@ -707,7 +733,32 @@ function renderGrid(){
   tfoot.appendChild(fr); tbl.appendChild(tfoot);
 }
 
-function renderAll(){ renderStats(); renderDay(); if(view==="grid") renderGrid(); }
+function renderTestBanner(){
+  const b = $("#testBanner");
+  if (beforeStart()){
+    const hrs = Math.max(1, Math.round((START.getTime()-Date.now())/3600000));
+    $("#testMsg").innerHTML = "<b>Test day — the challenge starts "+shortDate(dateOf(1))+".</b> "
+      + "Tick whatever you like right now to check everything works; it all clears on its own when Day 1 begins in about "
+      + hrs + " hour" + (hrs===1?"":"s") + ". You don't have to clean anything up.";
+    b.classList.add("on");
+  } else b.classList.remove("on");
+}
+
+/* When Day 1 arrives, the cutoff moves and the test marks drop away. */
+let wasBefore = beforeStart();
+setInterval(()=>{
+  const now = beforeStart();
+  if (wasBefore && !now){                 // just crossed into Day 1
+    wasBefore = now;
+    data = loadLocal();
+    saveLocal(data);
+    renderAll(); renderTestBanner();
+    Sync.push();
+    toast("Day 1 has started — test ticks cleared");
+  }
+}, 30000);
+
+function renderAll(){ renderStats(); renderDay(); renderTestBanner(); if(view==="grid") renderGrid(); }
 
 /* ============ views ============ */
 function setView(v){
@@ -723,7 +774,7 @@ $("#prevDay").onclick = ()=>{ curDay=clamp(curDay-1,1,DAYS); renderDay(); };
 $("#nextDay").onclick = ()=>{ curDay=clamp(curDay+1,1,DAYS); renderDay(); };
 $("#jumpToday").onclick = ()=>{
   const ti=todayIndex();
-  if(!ti){ toast(midnight(new Date())<START ? "Challenge starts 19 Sep 2026" : "Challenge ended 27 Dec 2026"); return; }
+  if(!ti){ toast(midnight(new Date())<START ? "Challenge starts "+shortDate(dateOf(1)) : "Challenge ended "+shortDate(dateOf(DAYS))); return; }
   curDay=ti; renderDay();
 };
 $("#allDone").onclick = ()=>{ for(let t=0;t<TASKS.length;t++) setS(curDay,t,1); toast("Day "+curDay+" — perfect day ✓"); };
@@ -769,7 +820,7 @@ $("#copyLink").onclick = async ()=>{
 $("#joinBtn").onclick = ()=>Sync.join($("#joinCode").value);
 
 $("#exportBtn").onclick = ()=>{
-  const payload = {app:"100-days-tracker", version:2, exportedAt:new Date().toISOString(), start:"2026-09-19", tasks:TASKS, p:data.p};
+  const payload = {app:"100-days-tracker", version:2, exportedAt:new Date().toISOString(), start:"2026-09-28", tasks:TASKS, p:data.p};
   const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
   const url = URL.createObjectURL(blob), a=document.createElement("a"), n=new Date();
   a.href=url; a.download="100-days-backup-"+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())+".json";
@@ -808,7 +859,7 @@ $("#resetBtn").onclick = ()=>{
 };
 
 /* ============ go ============ */
-$("#range").textContent = "19 Sep – 27 Dec 2026 · "+TASKS.length+" daily habits";
+$("#range").textContent = rangeText()+" · "+DAYS+" days · "+TASKS.length+" daily habits";
 renderProfiles();
 renderBlockSeg();
 renderAll();
@@ -820,7 +871,7 @@ if(!lsGet("hundredDays.block")){
 
 /* adopt a sync code arriving in the URL: ...#s=abc123 */
 (async ()=>{
-  const m = location.hash.match(/#s=([a-f0-9]{8,64})/i);
+  const m = location.hash.match(/^#s=([a-f0-9]{8,64})$/i);
   if(m){
     history.replaceState(null,"",location.pathname+location.search);
     await Sync.join(m[1]);
